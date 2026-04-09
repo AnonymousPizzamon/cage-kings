@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.cagekingsfx.MainController">
+
+    <!-- TOP: Title -->
+    <top>
+        <Label text="Cage Kings Fight Viewer"
+               BorderPane.alignment="CENTER"
+               style="-fx-font-size: 18px; -fx-padding: 10;" />
+    </top>
+
+    <!-- CENTER: Table -->
+    <center>
+        <TableView fx:id="fightTable">
+
+            <columns>
+                <TableColumn fx:id="fighter1Col" text="Fighter 1" prefWidth="150"/>
+                <TableColumn fx:id="fighter2Col" text="Fighter 2" prefWidth="150"/>
+                <TableColumn fx:id="categoryCol" text="Category" prefWidth="150"/>
+            </columns>
+
+        </TableView>
+    </center>
+
+    <!-- BOTTOM: Controls + Output -->
+    <bottom>
+        <VBox spacing="10" style="-fx-padding: 10;">
+
+            <HBox spacing="10">
+                <Button text="Load Fights" onAction="#loadFights"/>
+                <Button text="Place Bet" onAction="#handleBet"/>
+            </HBox>
+
+            <TextArea fx:id="outputArea"
+                      prefHeight="120"
+                      wrapText="true"/>
+
+        </VBox>
+    </bottom>
+
+</BorderPane>
