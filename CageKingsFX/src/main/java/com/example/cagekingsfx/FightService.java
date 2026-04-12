@@ -4,7 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -20,7 +20,7 @@ public class FightService {
 
     private static String loadApiKey() {
         Properties props = new Properties();
-        try (var stream = FightService.class.getResourceAsStream("/config.properties")) {
+        try (InputStream stream = FightService.class.getResourceAsStream("/config.properties")) {
             if (stream == null) {
                 System.err.println("config.properties not found in resources — copy config.properties.example and add your key.");
                 return "";
