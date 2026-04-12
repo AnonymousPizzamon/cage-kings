@@ -25,6 +25,7 @@ public class MainController {
     private TextArea outputArea;
 
     private FightService service = new FightService();
+    private String selectedFighter = null;
 
     @FXML
     public void initialize() {
@@ -33,10 +34,42 @@ public class MainController {
         fighter1Col.setCellValueFactory(data ->
                 new javafx.beans.property.SimpleStringProperty(data.getValue().getFighter1())
         );
+        fighter1Col.setCellFactory(col -> {
+            javafx.scene.control.TableCell<Fight, String> cell = new javafx.scene.control.TableCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty ? null : item);
+                }
+            };
+            cell.setOnMouseClicked(e -> {
+                if (!cell.isEmpty()) {
+                    selectedFighter = cell.getItem();
+                    outputArea.setText("Selected: " + selectedFighter);
+                }
+            });
+            return cell;
+        });
 
         fighter2Col.setCellValueFactory(data ->
                 new javafx.beans.property.SimpleStringProperty(data.getValue().getFighter2())
         );
+        fighter2Col.setCellFactory(col -> {
+            javafx.scene.control.TableCell<Fight, String> cell = new javafx.scene.control.TableCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty ? null : item);
+                }
+            };
+            cell.setOnMouseClicked(e -> {
+                if (!cell.isEmpty()) {
+                    selectedFighter = cell.getItem();
+                    outputArea.setText("Selected: " + selectedFighter);
+                }
+            });
+            return cell;
+        });
 
         categoryCol.setCellValueFactory(data ->
                 new javafx.beans.property.SimpleStringProperty(data.getValue().getCategory())
@@ -60,16 +93,13 @@ public class MainController {
 
         Fight selectedFight = fightTable.getSelectionModel().getSelectedItem();
 
-        if (selectedFight == null) {
-            outputArea.setText("Please select a fight first.");
+        if (selectedFight == null || selectedFighter == null) {
+            outputArea.setText("Please click a fighter name to place your bet.");
             return;
         }
 
         String fighter1 = selectedFight.getFighter1();
         String fighter2 = selectedFight.getFighter2();
-
-        // VERY BASIC: just always pick fighter1 (you can change later)
-        String selectedFighter = fighter1;
 
         String result;
 
