@@ -113,7 +113,7 @@ public class FightService {
                     }
                 }
 
-                fights.add(new Fight(fighter1Name, fighter2Name, winner, category));
+                fights.add(new Fight(fighter1Name, fighter2Name, category, winner));
             }
 
         } catch (Exception e) {
