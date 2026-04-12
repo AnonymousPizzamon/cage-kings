@@ -4,11 +4,13 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -17,6 +19,8 @@ public class FightService {
 
     private static final String API_KEY = loadApiKey();
     private static final String API_URL = "https://v1.mma.api-sports.io/fights?season=2024";
+    private static final File CACHE_FILE = new File("fights_cache.json");
+    private static final long CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
 
     private static String loadApiKey() {
         Properties props = new Properties();
@@ -34,9 +38,17 @@ public class FightService {
     }
 
     // -------------------------------
-    // FETCH JSON FROM API
+    // FETCH JSON FROM API (with cache)
     // -------------------------------
     public String getFightsJson() {
+
+        if (CACHE_FILE.exists() && System.currentTimeMillis() - CACHE_FILE.lastModified() < CACHE_DURATION_MS) {
+            try {
+                return new String(Files.readAllBytes(CACHE_FILE.toPath()), StandardCharsets.UTF_8);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         StringBuilder result = new StringBuilder();
 
@@ -60,30 +72,17 @@ public class FightService {
             reader.close();
             conn.disconnect();
 
+            Files.write(CACHE_FILE.toPath(), result.toString().getBytes(StandardCharsets.UTF_8));
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // Debug raw JSON (optional)
-        System.out.println(result.toString());
-
         return result.toString();
     }
 
-    // -------------------------------
-    // FIX ENCODING (for accented characters)
-    // -------------------------------
-    private String fixEncoding(String text) {
-        try {
-            return new String(text.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            return text;
-        }
-    }
 
-    // -------------------------------
-    // PARSE JSON INTO FIGHT OBJECTS
-    // -------------------------------
+    // Parse JSON into fight objects
     public List<Fight> parseFights(String json) {
 
         List<Fight> fights = new ArrayList<>();
@@ -112,11 +111,11 @@ public class FightService {
                     JSONObject second = fighters.optJSONObject("second");
 
                     if (first != null) {
-                        fighter1Name = fixEncoding(first.optString("name", "Unknown"));
+                        fighter1Name = first.optString("name", "Unknown");
                     }
 
                     if (second != null) {
-                        fighter2Name = fixEncoding(second.optString("name", "Unknown"));
+                        fighter2Name = second.optString("name", "Unknown");
                     }
 
                     String winnerSide = fight.optString("winner", "");
