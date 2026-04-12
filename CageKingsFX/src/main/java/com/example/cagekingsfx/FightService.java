@@ -4,17 +4,34 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class FightService {
 
-    private static final String API_KEY = "REDACTED_ROTATE_AT_PROVIDER";
+    private static final String API_KEY = loadApiKey();
     private static final String API_URL = "https://v1.mma.api-sports.io/fights?season=2024";
+
+    private static String loadApiKey() {
+        Properties props = new Properties();
+        try (var stream = FightService.class.getResourceAsStream("/config.properties")) {
+            if (stream == null) {
+                System.err.println("config.properties not found in resources — copy config.properties.example and add your key.");
+                return "";
+            }
+            props.load(stream);
+            return props.getProperty("API_KEY", "");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
 
     // -------------------------------
     // FETCH JSON FROM API
