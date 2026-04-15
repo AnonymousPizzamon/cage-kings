@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.cagekingsfx.BetController"
+      spacing="15" style="-fx-padding: 20;">
+
+    <Label fx:id="fightLabel" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+    <Label fx:id="fighterLabel" style="-fx-font-size: 12px;"/>
+
+    <Separator/>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Bet Amount ($1 - $100,000):"/>
+        <TextField fx:id="amountField" promptText="Enter amount" prefWidth="150"/>
+    </HBox>
+
+    <fx:define>
+        <ToggleGroup fx:id="betTypeGroup"/>
+    </fx:define>
+
+    <Label text="Bet on:"/>
+    <RadioButton fx:id="winnerRadio" text="Winner" toggleGroup="$betTypeGroup" selected="true"/>
+    <RadioButton fx:id="drawRadio" text="Draw" toggleGroup="$betTypeGroup"/>
+
+    <Separator/>
+
+    <HBox spacing="10">
+        <Button text="Confirm Bet" onAction="#handleConfirm"/>
+        <Button text="Cancel" onAction="#handleCancel"/>
+    </HBox>
+
+    <Label fx:id="resultLabel" style="-fx-font-size: 13px;"/>
+
+</VBox>

@@ -3,7 +3,11 @@ package com.example.cagekingsfx;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.util.List;
 
@@ -98,25 +102,21 @@ public class MainController {
             return;
         }
 
-        String fighter1 = selectedFight.getFighter1();
-        String fighter2 = selectedFight.getFighter2();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("bet-view.fxml"));
+            Stage betStage = new Stage();
+            betStage.setTitle("Place Bet");
+            betStage.initModality(Modality.APPLICATION_MODAL);
+            betStage.setScene(new Scene(loader.load()));
 
-        String result;
+            BetController betController = loader.getController();
+            betController.setData(selectedFight, selectedFighter);
 
-        if (selectedFighter.equals(selectedFight.getWinner())) {
-            result = "Correct! Winner was: " + selectedFight.getWinner();
-        } else {
-            result = "Wrong! Winner was: " + selectedFight.getWinner();
+            betStage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+            outputArea.setText("Failed to open bet window.");
         }
 
-        // Output to UI
-        outputArea.setText(
-                "Fight: " + fighter1 + " vs " + fighter2 + "\n" +
-                        "You chose: " + selectedFighter + "\n" +
-                        result
-        );
-
-        // Also print to console
-        System.out.println(result);
     }
 }
