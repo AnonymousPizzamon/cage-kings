@@ -6,6 +6,8 @@ public class Fight {
     private String fighter2;
     private String category;
     private String winner;
+    private String fighter1Record;
+    private String fighter2Record;
 
     public Fight() {
         // default constructor (important for parsing)
@@ -44,6 +46,21 @@ public class Fight {
 
     public String getWinner() {
         return winner;
+    }
+
+    public void setFighter1Record(String fighter1Record){
+        this.fighter1Record = fighter1Record;
+    }
+
+    public void setFighter2Record(String fighter2Record){
+        this.fighter2Record = fighter2Record;
+    }
+    public String getFighter1Record(){
+        return fighter1Record;
+    }
+
+    public String getFighter2Record(){
+        return fighter2Record;
     }
 
     public void setWinner(String winner) {

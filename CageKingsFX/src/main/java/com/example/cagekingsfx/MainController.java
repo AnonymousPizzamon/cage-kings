@@ -2,13 +2,16 @@ package com.example.cagekingsfx;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
+import java.io.IOException;
 import java.util.List;
 
 public class MainController {
@@ -29,52 +32,15 @@ public class MainController {
     private TextArea outputArea;
 
     private FightService service = new FightService();
-    private String selectedFighter = null;
 
     @FXML
     public void initialize() {
-
-        // Bind columns to Fight class getters
         fighter1Col.setCellValueFactory(data ->
                 new javafx.beans.property.SimpleStringProperty(data.getValue().getFighter1())
         );
-        fighter1Col.setCellFactory(col -> {
-            javafx.scene.control.TableCell<Fight, String> cell = new javafx.scene.control.TableCell<>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    setText(empty ? null : item);
-                }
-            };
-            cell.setOnMouseClicked(e -> {
-                if (!cell.isEmpty()) {
-                    selectedFighter = cell.getItem();
-                    outputArea.setText("Selected: " + selectedFighter);
-                }
-            });
-            return cell;
-        });
-
         fighter2Col.setCellValueFactory(data ->
                 new javafx.beans.property.SimpleStringProperty(data.getValue().getFighter2())
         );
-        fighter2Col.setCellFactory(col -> {
-            javafx.scene.control.TableCell<Fight, String> cell = new javafx.scene.control.TableCell<>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    setText(empty ? null : item);
-                }
-            };
-            cell.setOnMouseClicked(e -> {
-                if (!cell.isEmpty()) {
-                    selectedFighter = cell.getItem();
-                    outputArea.setText("Selected: " + selectedFighter);
-                }
-            });
-            return cell;
-        });
-
         categoryCol.setCellValueFactory(data ->
                 new javafx.beans.property.SimpleStringProperty(data.getValue().getCategory())
         );
@@ -82,41 +48,54 @@ public class MainController {
 
     @FXML
     private void loadFights() {
-
         String json = service.getFightsJson();
         List<Fight> fights = service.parseFights(json);
-
         ObservableList<Fight> list = FXCollections.observableArrayList(fights);
         fightTable.setItems(list);
-
         outputArea.setText("Fights loaded.\n");
     }
 
     @FXML
     private void handleBet() {
-
         Fight selectedFight = fightTable.getSelectionModel().getSelectedItem();
-
-        if (selectedFight == null || selectedFighter == null) {
-            outputArea.setText("Please click a fighter name to place your bet.");
+        if (selectedFight == null) {
+            outputArea.setText("Please select a fight first.");
             return;
         }
 
+        // Defaulting to fighter1 for now as per your original logic
+        String selectedFighter = selectedFight.getFighter1();
+
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("bet-view.fxml"));
-            Stage betStage = new Stage();
-            betStage.setTitle("Place Bet");
-            betStage.initModality(Modality.APPLICATION_MODAL);
-            betStage.setScene(new Scene(loader.load()));
+            Parent root = loader.load();
 
             BetController betController = loader.getController();
             betController.setData(selectedFight, selectedFighter);
 
+            Stage betStage = new Stage();
+            betStage.setTitle("Place Bet");
+            betStage.initModality(Modality.APPLICATION_MODAL);
+            betStage.setScene(new Scene(root));
             betStage.showAndWait();
+
+            // Result label logic inside BetController,
+            // so we just notify the main UI that the action was attempted.
+            outputArea.setText("Betting process finished for: " + selectedFight.getFighter1());
+
         } catch (Exception e) {
             e.printStackTrace();
             outputArea.setText("Failed to open bet window.");
         }
+    }
 
+
+    @FXML
+    void showBalance(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("balance.fxml"));
+        Parent root = loader.load();
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(root));
+        stage.show();
     }
 }
