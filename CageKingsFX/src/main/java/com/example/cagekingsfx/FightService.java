@@ -4,51 +4,22 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 public class FightService {
 
-    private static final String API_KEY = loadApiKey();
+    private static final String API_KEY = "REDACTED_ROTATE_AT_PROVIDER";
     private static final String API_URL = "https://v1.mma.api-sports.io/fights?season=2024";
-    private static final File CACHE_FILE = new File("fights_cache.json");
-    private static final long CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
-
-    private static String loadApiKey() {
-        Properties props = new Properties();
-        try (InputStream stream = FightService.class.getResourceAsStream("/config.properties")) {
-            if (stream == null) {
-                System.err.println("config.properties not found in resources — copy config.properties.example and add your key.");
-                return "";
-            }
-            props.load(stream);
-            return props.getProperty("API_KEY", "");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
-        }
-    }
 
     // -------------------------------
-    // FETCH JSON FROM API (with cache)
+    // FETCH JSON FROM API
     // -------------------------------
     public String getFightsJson() {
-
-        if (CACHE_FILE.exists() && System.currentTimeMillis() - CACHE_FILE.lastModified() < CACHE_DURATION_MS) {
-            try {
-                return new String(Files.readAllBytes(CACHE_FILE.toPath()), StandardCharsets.UTF_8);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
 
         StringBuilder result = new StringBuilder();
 
@@ -72,17 +43,30 @@ public class FightService {
             reader.close();
             conn.disconnect();
 
-            Files.write(CACHE_FILE.toPath(), result.toString().getBytes(StandardCharsets.UTF_8));
-
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        // Debug raw JSON (optional)
+        System.out.println(result.toString());
+
         return result.toString();
     }
 
+    // -------------------------------
+    // FIX ENCODING (for accented characters)
+    // -------------------------------
+    private String fixEncoding(String text) {
+        try {
+            return new String(text.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return text;
+        }
+    }
 
-    // Parse JSON into fight objects
+    // -------------------------------
+    // PARSE JSON INTO FIGHT OBJECTS
+    // -------------------------------
     public List<Fight> parseFights(String json) {
 
         List<Fight> fights = new ArrayList<>();
@@ -111,20 +95,36 @@ public class FightService {
                     JSONObject second = fighters.optJSONObject("second");
 
                     if (first != null) {
-                        fighter1Name = first.optString("name", "Unknown");
+                        fighter1Name = fixEncoding(first.optString("name", "Unknown"));
                     }
 
                     if (second != null) {
-                        fighter2Name = second.optString("name", "Unknown");
+                        fighter2Name = fixEncoding(second.optString("name", "Unknown"));
                     }
 
-                    String winnerSide = fight.optString("winner", "");
+                    /* String winnerSide = fight.optString("winner", "");
+                    System.out.println("Raw winner value: " + winnerSide);
 
                     if (winnerSide.equals("first")) {
                         winner = fighter1Name;
                     } else if (winnerSide.equals("second")) {
                         winner = fighter2Name;
                     } else {
+                        winner = "Draw";
+                    }
+
+                     */
+
+                    boolean fighter1Wins = first != null && first.optBoolean("winner", false);
+                    boolean fighter2Wins = second != null && second.optBoolean("winner", false);
+
+                    if(fighter1Wins){
+                        winner = fighter1Name;
+                    }
+                    else if(fighter2Wins){
+                        winner = fighter2Name;
+                    }
+                    else{
                         winner = "Draw";
                     }
                 }
@@ -138,4 +138,99 @@ public class FightService {
 
         return fights;
     }
+
+    public int[] getFighterRecord(int fighterId) {
+        try {
+            String json = fetchJson("/fighters/statistics?id=" + fighterId);
+
+            JSONObject obj = new JSONObject(json);
+            JSONArray response = obj.optJSONArray("response");
+
+            if (response == null || response.length() == 0) return null;
+
+            JSONObject data = response.getJSONObject(0);
+            JSONObject fightsObj = data.optJSONObject("fights");
+
+            int wins = 0, losses = 0, draws = 0;
+
+            if (fightsObj != null) {
+                JSONObject winsObj   = fightsObj.optJSONObject("wins");
+                JSONObject lossesObj = fightsObj.optJSONObject("losses");
+                JSONObject drawsObj  = fightsObj.optJSONObject("draws");
+
+                if (winsObj != null)   wins   = winsObj.optInt("total", 0);
+                if (lossesObj != null) losses = lossesObj.optInt("total", 0);
+                if (drawsObj != null)  draws  = drawsObj.optInt("total", 0);
+            }
+
+            return new int[]{wins, losses, draws};
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public int searchFighterId(String fighterName) {
+        try {
+            String encoded = fighterName.trim().replace(" ", "%20");
+            String json = fetchJson("/fighters?search=" + encoded);
+
+            System.out.println("Fighter search response: " + json); // ADD THIS
+
+
+            JSONObject obj = new JSONObject(json);
+            JSONArray response = obj.optJSONArray("response");
+
+            if (response != null && response.length() > 0) {
+                return response.getJSONObject(0).optInt("id", -1);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+    // -------------------------------
+    // CONVENIENCE: LOOKUP RECORD BY NAME
+    // Returns int[] { wins, losses, draws } or null if not found
+    // -------------------------------
+    public int[] getFighterRecordByName(String name) {
+        int id = searchFighterId(name);
+        if (id == -1) return null;
+        return getFighterRecord(id);
+    }
+
+    // -------------------------------
+    // SHARED HTTP HELPER
+    // -------------------------------
+    private String fetchJson(String endpoint) {
+        StringBuilder result = new StringBuilder();
+        try {
+            URL url = new URL("https://v1.mma.api-sports.io" + endpoint);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("x-apisports-key", API_KEY);
+            conn.setRequestProperty("Accept", "application/json");
+
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8)
+            );
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                result.append(line);
+            }
+
+            reader.close();
+            conn.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result.toString();
+    }
+
+
 }
