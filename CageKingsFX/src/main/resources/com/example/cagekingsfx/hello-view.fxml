@@ -41,6 +41,7 @@
             <HBox spacing="10">
                 <Button onAction="#loadFights" text="Load Fights" />
                 <Button onAction="#showBalance" text="Balance" />
+                <Button onAction="#showPreviousBets" text="Previous Bets" />
             </HBox>
 
             <!-- Row 2: Fighter selection radio buttons -->
