@@ -30,6 +30,7 @@ public class BalanceController {
 
     private double currentBalance = 0.0;
     public static final String CSV_PATH = "data/UserBalance.csv";
+    public static final String BETS_CSV_PATH = "data/BetsTracked.csv";
 
 
     @FXML
@@ -69,6 +70,17 @@ public class BalanceController {
         return 0.00;
     }
 
+    public static void saveBetToCSV(String fighter1, String fighter2, String chosenFighter, double betAmount, String result){
+        boolean fileExists = new File(BETS_CSV_PATH).exists();
+        try(PrintWriter writer = new PrintWriter(new FileWriter(BETS_CSV_PATH, true))){
+            if(!fileExists){
+                writer.println("fighter1,fighter2,chosen,amount,result");
+            }
+            writer.println(fighter1 + "," + fighter2 + "," + chosenFighter + "," + betAmount + "," + result);
+        }catch(IOException e){
+            System.out.println("Error saving bet: " + e.getMessage());
+        }
+    }
     public static void saveBalanceToCSV(double balance){
 
         balance = Math.round(balance * 100.0) / 100.0;

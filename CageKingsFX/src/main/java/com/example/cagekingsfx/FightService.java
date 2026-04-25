@@ -16,9 +16,7 @@ public class FightService {
     private static final String API_KEY = "REDACTED_ROTATE_AT_PROVIDER";
     private static final String API_URL = "https://v1.mma.api-sports.io/fights?season=2024";
 
-    // -------------------------------
     // FETCH JSON FROM API
-    // -------------------------------
     public String getFightsJson() {
 
         StringBuilder result = new StringBuilder();
@@ -31,9 +29,7 @@ public class FightService {
             conn.setRequestProperty("x-apisports-key", API_KEY);
             conn.setRequestProperty("Accept", "application/json");
 
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8)
-            );
+            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
 
             String line;
             while ((line = reader.readLine()) != null) {
@@ -53,9 +49,9 @@ public class FightService {
         return result.toString();
     }
 
-    // -------------------------------
-    // FIX ENCODING (for accented characters)
-    // -------------------------------
+    /*
+        Fix accent characters
+     */
     private String fixEncoding(String text) {
         try {
             return new String(text.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
@@ -127,9 +123,17 @@ public class FightService {
                     else{
                         winner = "Draw";
                     }
+
+                    int fighter1Id = first != null ? first.optInt("id", -1) : -1;
+                    int fighter2Id = second != null ? second.optInt("id", -1) : -1;
+
+                    Fight f = new Fight(fighter1Name, fighter2Name, category, winner);
+                    f.setFighter1Id(fighter1Id);
+                    f.setFighter2Id(fighter2Id);
+                    fights.add(f);
                 }
 
-                fights.add(new Fight(fighter1Name, fighter2Name, category, winner));
+                // fights.add(new Fight(fighter1Name, fighter2Name, category, winner));
             }
 
         } catch (Exception e) {
@@ -139,71 +143,34 @@ public class FightService {
         return fights;
     }
 
-    public int[] getFighterRecord(int fighterId) {
+    public String getFighterStats(int fighterId) {
         try {
-            String json = fetchJson("/fighters/statistics?id=" + fighterId);
+            String json = fetchJson("/fighters?id=" + fighterId);
 
             JSONObject obj = new JSONObject(json);
             JSONArray response = obj.optJSONArray("response");
 
-            if (response == null || response.length() == 0) return null;
+            if (response == null || response.length() == 0) return "N/A";
 
-            JSONObject data = response.getJSONObject(0);
-            JSONObject fightsObj = data.optJSONObject("fights");
+            JSONObject fighter = response.getJSONObject(0);
 
-            int wins = 0, losses = 0, draws = 0;
+            String height = fighter.optString("height", "N/A");
+            String weight = fighter.optString("weight", "N/A");
+            String reach  = fighter.optString("reach", "N/A");
+            String stance = fighter.optString("stance", "N/A");
 
-            if (fightsObj != null) {
-                JSONObject winsObj   = fightsObj.optJSONObject("wins");
-                JSONObject lossesObj = fightsObj.optJSONObject("losses");
-                JSONObject drawsObj  = fightsObj.optJSONObject("draws");
-
-                if (winsObj != null)   wins   = winsObj.optInt("total", 0);
-                if (lossesObj != null) losses = lossesObj.optInt("total", 0);
-                if (drawsObj != null)  draws  = drawsObj.optInt("total", 0);
-            }
-
-            return new int[]{wins, losses, draws};
+            return height + " | " + weight + " | " + reach + " reach | " + stance;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return "N/A";
     }
 
-    public int searchFighterId(String fighterName) {
-        try {
-            String encoded = fighterName.trim().replace(" ", "%20");
-            String json = fetchJson("/fighters?search=" + encoded);
-
-            System.out.println("Fighter search response: " + json); // ADD THIS
-
-
-            JSONObject obj = new JSONObject(json);
-            JSONArray response = obj.optJSONArray("response");
-
-            if (response != null && response.length() > 0) {
-                return response.getJSONObject(0).optInt("id", -1);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-    // -------------------------------
     // CONVENIENCE: LOOKUP RECORD BY NAME
     // Returns int[] { wins, losses, draws } or null if not found
-    // -------------------------------
-    public int[] getFighterRecordByName(String name) {
-        int id = searchFighterId(name);
-        if (id == -1) return null;
-        return getFighterRecord(id);
-    }
 
-    // -------------------------------
     // SHARED HTTP HELPER
-    // -------------------------------
     private String fetchJson(String endpoint) {
         StringBuilder result = new StringBuilder();
         try {

@@ -8,6 +8,8 @@ public class Fight {
     private String winner;
     private String fighter1Record;
     private String fighter2Record;
+    private int fighter1Id;
+    private int fighter2Id;
 
     public Fight() {
         // default constructor (important for parsing)
@@ -50,6 +52,18 @@ public class Fight {
 
     public void setFighter1Record(String fighter1Record){
         this.fighter1Record = fighter1Record;
+    }
+    public int getFighter1Id(){
+        return fighter1Id;
+    }
+    public void setFighter1Id(int fighter1Id){
+        this.fighter1Id = fighter1Id;
+    }
+    public int getFighter2Id(){
+        return fighter2Id;
+    }
+    public void setFighter2Id(int fighter2Id){
+        this.fighter2Id = fighter2Id;
     }
 
     public void setFighter2Record(String fighter2Record){
