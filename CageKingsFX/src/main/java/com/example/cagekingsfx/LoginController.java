@@ -85,8 +85,9 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("hello-view.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) usernameField.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setMaximized(true);
+
+            Scene scene = stage.getScene();
+            scene.setRoot(root);
         } catch (IOException e) {
             e.printStackTrace();
         }

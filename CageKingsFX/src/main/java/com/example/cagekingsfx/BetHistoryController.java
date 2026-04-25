@@ -39,10 +39,11 @@ public class BetHistoryController {
     void returnButton(ActionEvent event) throws IOException{
         FXMLLoader loader = new FXMLLoader(getClass().getResource("hello-view.fxml"));
         Parent root = loader.load();
-        Stage stage = (Stage)((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root));
-        stage.setMaximized(true);
-        stage.show();
+
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+        Scene scene = stage.getScene();
+        scene.setRoot(root);
     }
 
 }
