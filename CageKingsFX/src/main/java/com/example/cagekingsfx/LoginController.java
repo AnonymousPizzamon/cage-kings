@@ -16,20 +16,6 @@ public class LoginController {
     private static final String USERS_FILE = "data/users.csv";
 
     @FXML
-    private void handleLogin() {
-        String user = usernameField.getText();
-        String pass = passwordField.getText();
-
-        if (validateLogin(user, pass)) {
-            // Store the logged-in user somewhere
-            Session.currentUser = user;
-            navigateToMain();
-        } else {
-            statusLabel.setText("Invalid username or password.");
-        }
-    }
-
-    @FXML
     private void handleRegister() {
         String user = usernameField.getText();
         String pass = passwordField.getText();
@@ -61,6 +47,20 @@ public class LoginController {
         return false;
     }
 
+    @FXML
+    private void handleLogin() {
+        String user = usernameField.getText();
+        String pass = passwordField.getText();
+
+        if (validateLogin(user, pass)) {
+            // Store the logged-in user somewhere
+            Session.currentUser = user;
+            navigateToMain();
+        } else {
+            statusLabel.setText("Invalid username or password.");
+        }
+    }
+
     private boolean registerUser(String username, String password) {
         if (validateLogin(username, password)) return false; // Prevent duplicates
 
@@ -82,7 +82,7 @@ public class LoginController {
 
     private void navigateToMain() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("hello-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("main-screen.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) usernameField.getScene().getWindow();
 

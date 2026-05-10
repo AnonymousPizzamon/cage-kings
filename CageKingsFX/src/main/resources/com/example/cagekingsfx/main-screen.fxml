@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.example.cagekingsfx.MainController">
+
+    <BorderPane>
+        <top>
+            <Label style="-fx-font-size: 18px; -fx-padding: 10;" text="Cage Kings Fight Viewer" BorderPane.alignment="CENTER" />
+        </top>
+
+        <center>
+            <TableView fx:id="fightTable">
+                <columns>
+                    <TableColumn fx:id="fighter1Col" prefWidth="150" text="Fighter 1" />
+                    <TableColumn fx:id="fighter2Col" prefWidth="150" text="Fighter 2" />
+                    <TableColumn fx:id="categoryCol" prefWidth="150" text="Category" />
+                </columns>
+            </TableView>
+        </center>
+
+        <bottom>
+            <VBox spacing="10" style="-fx-padding: 10;">
+                <HBox spacing="10">
+                    <Button onAction="#loadFights" text="Load Fights" />
+                    <Button onAction="#showBalance" text="Balance" />
+                    <Button onAction="#showPreviousBets" text="Previous Bets" />
+                </HBox>
+
+                <HBox spacing="15" style="-fx-alignment: center-left;">
+                    <Label style="-fx-font-weight: bold;" text="Bet on:" />
+                    <RadioButton fx:id="fighter1Radio" text="Fighter 1">
+                        <toggleGroup>
+                            <ToggleGroup fx:id="fighterToggleGroup" />
+                        </toggleGroup>
+                    </RadioButton>
+                    <RadioButton fx:id="fighter2Radio" text="Fighter 2" toggleGroup="$fighterToggleGroup" />
+                </HBox>
+
+                <HBox spacing="10">
+                    <TextField fx:id="betInput" prefHeight="26.0" prefWidth="150.0" promptText="Enter Bet Amount" />
+                    <Button onAction="#handleBet" text="Place Bet" />
+                </HBox>
+
+                <TextArea fx:id="outputArea" prefHeight="120" wrapText="true" />
+            </VBox>
+        </bottom>
+    </BorderPane>
+
+    <ImageView fx:id="wrongChoiceImage" visible="false" opacity="1.0" mouseTransparent="true" preserveRatio="false">
+        <image>
+            <Image url="@/com/example/cagekingsfx/images/funnydoggy.jpeg" />
+        </image>
+    </ImageView>
+
+
+</StackPane>
