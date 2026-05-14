@@ -63,4 +63,4 @@ The project strictly adheres to the Model-View-Controller architecture:
 
 ## UML Diagram
 The UML diagram illustrating the MVC relationships is located in the root of the repository as `UML_Diagram.png`. It details the interactions between the controllers and the service layer.
-`insert_uml_here`
+`![UML Diagram](CageKingsUML.drawio.png)`
