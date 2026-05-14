@@ -49,7 +49,7 @@ public class BetHistoryController {
      * @param event the event when the load history button is pressed
      */
     @FXML
-    void loadHistory(ActionEvent event) {
+    public void loadHistory(ActionEvent event) {
         String history = "";
         int wins = 0;
         int total = 0;
@@ -111,7 +111,7 @@ public class BetHistoryController {
      * @throws IOException if the main-screen FXML file isn't able to load
      */
     @FXML
-    void returnButton(ActionEvent event) throws IOException{
+    public void returnButton(ActionEvent event) throws IOException{
         FXMLLoader loader = new FXMLLoader(getClass().getResource("main-screen.fxml"));
         Parent root = loader.load();
 

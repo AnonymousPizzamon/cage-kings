@@ -15,12 +15,16 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.example.cagekingsfx.MainController">
+<StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.cagekingsfx.MainController">
 
     <BorderPane>
         <top>
-            <Label style="-fx-font-size: 18px; -fx-padding: 10;" text="Cage Kings Fight Viewer" BorderPane.alignment="CENTER" />
+         <HBox maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
+            <children>
+               <Button mnemonicParsing="false" onAction="#logOutButton" text="Logout" HBox.hgrow="ALWAYS" />
+                  <Label alignment="CENTER" maxWidth="1.7976931348623157E308" style="-fx-font-size: 18px; -fx-padding: 10;" text="Cage Kings Fight Viewer" textAlignment="CENTER" HBox.hgrow="ALWAYS" />
+            </children>
+         </HBox>
         </top>
 
         <center>
@@ -61,7 +65,7 @@
         </bottom>
     </BorderPane>
 
-    <ImageView fx:id="wrongChoiceImage" visible="false" opacity="1.0" mouseTransparent="true" preserveRatio="false">
+    <ImageView fx:id="wrongChoiceImage" mouseTransparent="true" opacity="1.0" preserveRatio="false" visible="false">
         <image>
             <Image url="@/com/example/cagekingsfx/images/funnydoggy.jpeg" />
         </image>

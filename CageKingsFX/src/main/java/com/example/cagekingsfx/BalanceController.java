@@ -26,7 +26,7 @@ public class BalanceController {
      * @throws IOException if the main-screen FXML file isn't found
      */
     @FXML
-    void returnButton(ActionEvent event) throws IOException{
+    public void returnButton(ActionEvent event) throws IOException{
         FXMLLoader loader = new FXMLLoader(getClass().getResource("main-screen.fxml"));
         Parent root = loader.load();
 
@@ -53,7 +53,7 @@ public class BalanceController {
      * @param event the action of the user clicking the button
      */
     @FXML
-    void addCurrency(ActionEvent event) {
+    public void addCurrency(ActionEvent event) {
         String input = amountInput.getText();
         try{
             double amount = Double.parseDouble(input);

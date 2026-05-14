@@ -234,4 +234,21 @@ public class MainController {
         Scene scene = stage.getScene();
         scene.setRoot(root);
     }
+
+
+    /**
+     * Logs the user out of the application
+     *
+     * @param event the event of the logout button being pressed
+     */
+    @FXML
+    void logOutButton(ActionEvent event) throws IOException{
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("login-view.fxml"));
+        Parent root = loader.load();
+
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+        Scene scene = stage.getScene();
+        scene.setRoot(root);
+    }
 }
