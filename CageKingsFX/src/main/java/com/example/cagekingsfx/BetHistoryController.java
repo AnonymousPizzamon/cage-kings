@@ -36,8 +36,8 @@ public class BetHistoryController {
     /**
      * Initializes the bet history screen
      * Wet cat is hidden until the button is pressed and winrate is checked
-    */
-     @FXML
+     */
+    @FXML
     public void initialize(){
         bathCatImage.setVisible(false);
     }
@@ -55,7 +55,6 @@ public class BetHistoryController {
         int total = 0;
 
         try(BufferedReader reader = new BufferedReader(new FileReader(BalanceModel.BETS_CSV_PATH))){
-            reader.readLine();
             String line;
             while((line = reader.readLine()) != null){
                 String[] parts = line.split(",");

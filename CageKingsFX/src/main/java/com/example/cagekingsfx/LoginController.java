@@ -17,8 +17,17 @@ public class LoginController {
     @FXML private PasswordField passwordField;
     @FXML private Label statusLabel;
 
-    private static final String USERS_FILE = System.getProperty("user.dir") + "/CageKingsFX/data/users.csv";
+    private static final String USERS_FILE;
 
+    static {
+        String base = System.getProperty("user.dir");
+        File direct = new File(base + "/data");
+        if (direct.exists()) {
+            USERS_FILE = base + "/data/users.csv";
+        } else {
+            USERS_FILE = base + "/CageKingsFX/data/users.csv";
+        }
+    }
     /**
      * Handles the register button click
      * Checks to make sure the fields are not empty, then registers the new user
@@ -48,6 +57,7 @@ public class LoginController {
      * @return true or false if a record is found or if its not found, respectively
      */
     private boolean validateLogin(String username, String password) {
+        System.out.println("USERS FILE: " + new File(USERS_FILE).getAbsolutePath());
         try (BufferedReader br = new BufferedReader(new FileReader(USERS_FILE))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -107,7 +117,7 @@ public class LoginController {
      * @param username the username to initialize the balance for
      */
     private void initializeUserBalance(String username) {
-        try (PrintWriter pw = new PrintWriter(new FileWriter("data/UserBalance.csv", true))) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(System.getProperty("user.dir") + "/CageKingsFX/data/UserBalance.csv", true))) {
             pw.println(username + ",0.0");
         } catch (IOException ignored) {}
     }

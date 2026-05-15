@@ -8,9 +8,16 @@ import java.io.*;
  */
 public class BalanceModel {
 
-    public static final String CSV_PATH = "data/UserBalance.csv";
-    public static final String BETS_CSV_PATH = "data/BetsTracked.csv";
 
+    private static String getDataPath() {
+        String base = System.getProperty("user.dir");
+        File direct = new File(base + "/data");
+        if (direct.exists()) return base + "/data/";
+        return base + "/CageKingsFX/data/";
+    }
+
+    public static final String CSV_PATH = getDataPath() + "UserBalance.csv";
+    public static final String BETS_CSV_PATH = getDataPath() + "BetsTracked.csv";
     /**
      * Reads the current balance from UserBalance.csv
      * Skips the top line and parses the balance from there
