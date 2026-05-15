@@ -40,22 +40,16 @@ The project strictly adheres to the Model-View-Controller architecture:
 1.  **Clone the Repository:**
     ```bash
     git clone https://github.com/UTSA-CS-3443/Spring2026-CS3443-Section003-XOR_Squad.git
-    cd CageKingsFX
+    cd Spring2026-CS3443-Section003-XOR_Squad/CageKingsFX
     ```
 
-2.  **Ensure Data Directory Exists:**
-    The application stores user data in a `data/` folder at the project root. Create this folder if it is not present:
-    ```bash
-    mkdir data
-    ```
-
-3.  **Build the Project:**
+2.  **Build the Project:**
     Using Maven:
     ```bash
     mvn clean install
     ```
 
-4.  **Run the Application:**
+3.  **Run the Application:**
     Execute the `Launcher` class to start the JavaFX environment:
     ```bash
     mvn javafx:run
