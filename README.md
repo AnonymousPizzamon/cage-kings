@@ -34,6 +34,8 @@ The project strictly adheres to the Model-View-Controller architecture:
 ** Set up the SDK to Java 17 or higher **
 ** You can either clone the repository as described below or downloading the zip **
 
+** For cloning, you will need to set up the run configurations before running!! **
+
 1.  **Clone the Repository:**
     ```bash
     git clone https://github.com/UTSA-CS-3443/Spring2026-CS3443-Section003-XOR_Squad.git
