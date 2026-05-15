@@ -3,7 +3,7 @@
 Cage Kings is a virtual MMA betting simulator that enables users to place bets and view data without real financial loss.
 
 ## Contributors
-* **Robert Lloyd** - Lead Developer, Documentation & Architecture
+* **Robert Lloyd** - Developer, Documentation & Architecture
 * **Clemente Fernandez** - Developer, Testing & Version Control
 * **Alden Walker** - Developer
 * **Eddie Garcia** - Developer
