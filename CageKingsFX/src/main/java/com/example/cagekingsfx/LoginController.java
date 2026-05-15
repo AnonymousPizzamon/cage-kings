@@ -17,7 +17,7 @@ public class LoginController {
     @FXML private PasswordField passwordField;
     @FXML private Label statusLabel;
 
-    private static final String USERS_FILE = "data/users.csv";
+    private static final String USERS_FILE = System.getProperty("user.dir") + "/CageKingsFX/data/users.csv";
 
     /**
      * Handles the register button click
