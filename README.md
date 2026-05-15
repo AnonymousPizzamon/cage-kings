@@ -40,7 +40,7 @@ The project strictly adheres to the Model-View-Controller architecture:
 1.  **Clone the Repository:**
     ```bash
     git clone https://github.com/UTSA-CS-3443/Spring2026-CS3443-Section003-XOR_Squad.git
-    cd path/to/repo
+    cd CageKingsFX
     ```
 
 2.  **Ensure Data Directory Exists:**
