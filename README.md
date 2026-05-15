@@ -32,10 +32,6 @@ The project strictly adheres to the Model-View-Controller architecture:
 ## Installation & Running Instructions
 
 ** Set up the SDK to Java 17 or higher **
-** You can either clone the repository as described below or downloading the zip **
-
-** It runs, but error messages display, and you will need to run from the Main.java class **
-
 
 1.  **Clone the Repository:**
     ```bash
