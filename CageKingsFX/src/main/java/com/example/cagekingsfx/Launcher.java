@@ -12,7 +12,7 @@ import java.io.IOException;
  * Launching class for the CageKings application
  * It loads the login screen for the user to start on
  */
-public class LaunchApplication extends Application {
+public class Launcher extends Application {
     public static void main(String[] args) {
         launch(args);
     }
@@ -26,7 +26,7 @@ public class LaunchApplication extends Application {
     // Start our login screen instead.
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(LaunchApplication.class.getResource("login-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(Launcher.class.getResource("login-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Cage Kings - Login");
         stage.setMaximized(true);
