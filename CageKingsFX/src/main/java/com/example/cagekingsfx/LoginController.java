@@ -117,7 +117,7 @@ public class LoginController {
      * @param username the username to initialize the balance for
      */
     private void initializeUserBalance(String username) {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(System.getProperty("user.dir") + "/CageKingsFX/data/UserBalance.csv", true))) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(BalanceModel.CSV_PATH, true))) {
             pw.println(username + ",0.0");
         } catch (IOException ignored) {}
     }
