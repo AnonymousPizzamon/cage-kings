@@ -11,12 +11,22 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class is responsible for the API fetching and parsing
+ * It's neither a model nor controller, it's more of a helper to get API data
+ *
+ */
 public class FightService {
 
     private static final String API_KEY = "REDACTED_ROTATE_AT_PROVIDER";
     private static final String API_URL = "https://v1.mma.api-sports.io/fights?season=2024";
 
-    // FETCH JSON FROM API
+    /**
+     * Fetches the raw JSON string of all of the 2024 MMA fights
+     *
+     * @return the raw JSON as a string, empty if it fails
+     */
+    //Fetching JSON from the API
     public String getFightsJson() {
 
         StringBuilder result = new StringBuilder();
@@ -43,15 +53,15 @@ public class FightService {
             e.printStackTrace();
         }
 
-        // Debug raw JSON (optional)
-        System.out.println(result.toString());
-
         return result.toString();
     }
 
-    /*
-        Fix accent characters
+    /**
+     * Fixes the accent characters, it displays as an incorrect character without this, do not remove
+     * @param text the text to fix
+     * @return the corrected string
      */
+    // Accent character fix
     private String fixEncoding(String text) {
         try {
             return new String(text.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
@@ -60,12 +70,17 @@ public class FightService {
         }
     }
 
-    // -------------------------------
-    // PARSE JSON INTO FIGHT OBJECTS
-    // -------------------------------
-    public List<Fight> parseFights(String json) {
 
-        List<Fight> fights = new ArrayList<>();
+    /**
+     * Parses a JSON string into a list of objects
+     * It gets the fighter names, IDs, weight, and winner from each fight event
+     *
+     * @param json the JSON string
+     * @return a list of objects, or empty list if it fails
+     */
+    public List<FightModel> parseFights(String json) {
+
+        List<FightModel> fights = new ArrayList<>();
 
         try {
             JSONObject obj = new JSONObject(json);
@@ -98,19 +113,6 @@ public class FightService {
                         fighter2Name = fixEncoding(second.optString("name", "Unknown"));
                     }
 
-                    /* String winnerSide = fight.optString("winner", "");
-                    System.out.println("Raw winner value: " + winnerSide);
-
-                    if (winnerSide.equals("first")) {
-                        winner = fighter1Name;
-                    } else if (winnerSide.equals("second")) {
-                        winner = fighter2Name;
-                    } else {
-                        winner = "Draw";
-                    }
-
-                     */
-
                     boolean fighter1Wins = first != null && first.optBoolean("winner", false);
                     boolean fighter2Wins = second != null && second.optBoolean("winner", false);
 
@@ -127,13 +129,12 @@ public class FightService {
                     int fighter1Id = first != null ? first.optInt("id", -1) : -1;
                     int fighter2Id = second != null ? second.optInt("id", -1) : -1;
 
-                    Fight f = new Fight(fighter1Name, fighter2Name, category, winner);
+                    FightModel f = new FightModel(fighter1Name, fighter2Name, category, winner);
                     f.setFighter1Id(fighter1Id);
                     f.setFighter2Id(fighter2Id);
                     fights.add(f);
                 }
 
-                // fights.add(new Fight(fighter1Name, fighter2Name, category, winner));
             }
 
         } catch (Exception e) {
@@ -143,6 +144,13 @@ public class FightService {
         return fights;
     }
 
+    /**
+     * Gets the stats for a fighter from the API ID
+     * Returns height, weight, reach, and stance
+     *
+     * @param fighterId the API ID of the fighter
+     * @return the stats, or N/A if the request messes up or no data to return
+     */
     public String getFighterStats(int fighterId) {
         try {
             String json = fetchJson("/fighters?id=" + fighterId);
@@ -167,13 +175,16 @@ public class FightService {
         return "N/A";
     }
 
-    // CONVENIENCE: LOOKUP RECORD BY NAME
-    // Returns int[] { wins, losses, draws } or null if not found
-
-    // SHARED HTTP HELPER
+    /**
+     * Helper method to make requests for the data
+     * Used by the getFighterSTats method
+     *
+     * @param endpoint the API endpoint path to add to the url
+     * @return the JSON response as a string, or empty if it fails
+     */
     private String fetchJson(String endpoint) {
         StringBuilder result = new StringBuilder();
-        try {
+        try{
             URL url = new URL("https://v1.mma.api-sports.io" + endpoint);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -181,23 +192,19 @@ public class FightService {
             conn.setRequestProperty("x-apisports-key", API_KEY);
             conn.setRequestProperty("Accept", "application/json");
 
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8)
-            );
+            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
 
             String line;
-            while ((line = reader.readLine()) != null) {
+            while ((line = reader.readLine()) != null){
                 result.append(line);
             }
 
             reader.close();
             conn.disconnect();
 
-        } catch (Exception e) {
+        }catch (Exception e){
             e.printStackTrace();
         }
         return result.toString();
     }
-
-
 }

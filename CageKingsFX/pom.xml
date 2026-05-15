@@ -74,7 +74,7 @@
                     <execution>
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>com.example.cagekingsfx/com.example.cagekingsfx.HelloApplication</mainClass>
+                            <mainClass>com.example.cagekingsfx/com.example.cagekingsfx.LaunchApplication</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>
