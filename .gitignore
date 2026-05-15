@@ -1,5 +1,4 @@
 **/config.properties
 fights_cache.json
 target/
-.idea/
 *.iml
