@@ -34,7 +34,8 @@ The project strictly adheres to the Model-View-Controller architecture:
 ** Set up the SDK to Java 17 or higher **
 ** You can either clone the repository as described below or downloading the zip **
 
-** For cloning, you will need to set up the run configurations before running!! **
+** It runs, but error messages display, and you will need to run from the Main.java class **
+
 
 1.  **Clone the Repository:**
     ```bash
@@ -65,6 +66,7 @@ The project strictly adheres to the Model-View-Controller architecture:
 * **API Rate Limits:** The free tier of the MMA API may limit the number of fighter record lookups.
 * **Single Device Persistence:** User data is stored locally in CSV files within the `data/` directory and is not synced to a remote/server database.
 * **User data conflicts:** The application has trouble separating user data from each other. Balance and betting history may override one another.
+* ** Errors stemming from trying to make it easy for the grader to run the application, but it works **
 
 ## UML Diagram
 The UML diagram illustrating the MVC relationships is located in the root of the repository as `UML_Diagram.png`. It details the interactions between the controllers and the service layer.
