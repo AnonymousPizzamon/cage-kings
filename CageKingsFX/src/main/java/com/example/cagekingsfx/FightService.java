@@ -4,12 +4,16 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * This class is responsible for the API fetching and parsing
@@ -18,16 +22,63 @@ import java.util.List;
  */
 public class FightService {
 
-    private static final String API_KEY = "REDACTED_ROTATE_AT_PROVIDER";
+    private static final String API_KEY = loadApiKey();
     private static final String API_URL = "https://v1.mma.api-sports.io/fights?season=2024";
 
+    /** Where the fights response is cached so repeated runs don't burn API quota. */
+    private static final File CACHE_FILE = new File("fights_cache.json");
+
+    /** How long a cached response stays good for. */
+    private static final long CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
+
     /**
-     * Fetches the raw JSON string of all of the 2024 MMA fights
+     * Loads the API key from config.properties on the classpath, falling back to
+     * the CAGEKINGS_API_KEY environment variable. The key is deliberately not
+     * committed, see config.properties_example.
+     *
+     * @return the API key, or an empty string if it isn't configured
+     */
+    private static String loadApiKey() {
+        Properties props = new Properties();
+        try (InputStream stream = FightService.class.getResourceAsStream("/config.properties")) {
+            if (stream != null) {
+                props.load(stream);
+                String key = props.getProperty("API_KEY", "").trim();
+                // tolerate the quoted form used in the example file
+                if (key.startsWith("\"") && key.endsWith("\"") && key.length() > 1) {
+                    key = key.substring(1, key.length() - 1);
+                }
+                if (!key.isEmpty()) return key;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String fromEnv = System.getenv("CAGEKINGS_API_KEY");
+        if (fromEnv != null && !fromEnv.trim().isEmpty()) return fromEnv.trim();
+
+        System.err.println("No API key configured. Copy src/main/resources/config.properties_example "
+                + "to config.properties and add your key, or set CAGEKINGS_API_KEY.");
+        return "";
+    }
+
+    /**
+     * Fetches the raw JSON string of all of the 2024 MMA fights.
+     * A response cached within the last 24 hours is returned without hitting the
+     * network, which keeps the app usable against the API's free tier rate limit.
      *
      * @return the raw JSON as a string, empty if it fails
      */
     //Fetching JSON from the API
     public String getFightsJson() {
+
+        if (CACHE_FILE.exists() && System.currentTimeMillis() - CACHE_FILE.lastModified() < CACHE_DURATION_MS) {
+            try {
+                return new String(Files.readAllBytes(CACHE_FILE.toPath()), StandardCharsets.UTF_8);
+            } catch (Exception e) {
+                e.printStackTrace(); // fall through and re-fetch
+            }
+        }
 
         StringBuilder result = new StringBuilder();
 
@@ -49,25 +100,13 @@ public class FightService {
             reader.close();
             conn.disconnect();
 
+            Files.write(CACHE_FILE.toPath(), result.toString().getBytes(StandardCharsets.UTF_8));
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return result.toString();
-    }
-
-    /**
-     * Fixes the accent characters, it displays as an incorrect character without this, do not remove
-     * @param text the text to fix
-     * @return the corrected string
-     */
-    // Accent character fix
-    private String fixEncoding(String text) {
-        try {
-            return new String(text.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            return text;
-        }
     }
 
 
@@ -105,12 +144,15 @@ public class FightService {
                     JSONObject first = fighters.optJSONObject("first");
                     JSONObject second = fighters.optJSONObject("second");
 
+                    // The response stream is read as UTF-8, so names arrive already
+                    // decoded. Re-encoding them through ISO-8859-1 here corrupted any
+                    // accented name into a replacement character.
                     if (first != null) {
-                        fighter1Name = fixEncoding(first.optString("name", "Unknown"));
+                        fighter1Name = first.optString("name", "Unknown");
                     }
 
                     if (second != null) {
-                        fighter2Name = fixEncoding(second.optString("name", "Unknown"));
+                        fighter2Name = second.optString("name", "Unknown");
                     }
 
                     boolean fighter1Wins = first != null && first.optBoolean("winner", false);
