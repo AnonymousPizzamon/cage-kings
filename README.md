@@ -52,11 +52,38 @@ The project strictly adheres to the Model-View-Controller architecture:
     ```
     *Alternatively, run the `Launcher.java` file directly from your IDE.*
 
+## Configuration
+
+The API key is not committed. Before running, copy the example file and add your
+api-sports.io key:
+
+```bash
+cp CageKingsFX/src/main/resources/config.properties_example CageKingsFX/src/main/resources/config.properties
+```
+
+Alternatively set the `CAGEKINGS_API_KEY` environment variable. Responses from the
+fights endpoint are cached in `fights_cache.json` for 24 hours so repeated runs do
+not consume API quota.
+
+## Running the Tests
+
+```bash
+mvn test
+```
+
+23 JUnit 5 tests cover the JSON parsing in `FightService` and the per-user CSV
+storage in `BalanceModel`.
+
 ## Known Issues & Limitations
-* **API Rate Limits:** The free tier of the MMA API may limit the number of fighter record lookups.
+* **API Rate Limits:** The free tier of the MMA API may limit the number of fighter record lookups. Responses are cached for 24 hours to reduce this.
 * **Single Device Persistence:** User data is stored locally in CSV files within the `data/` directory and is not synced to a remote/server database.
-* **User data conflicts:** The application has trouble separating user data from each other. Balance and betting history may override one another.
 * ** Errors stemming from trying to make it easy for the grader to run the application, but it works **
+
+### Fixed
+* **User data conflicts:** Balance and betting history used to overwrite one another
+  because every account shared a single hardcoded `player1` row and each save
+  truncated the file. Balances and bets are now keyed by username and scoped to the
+  logged-in session.
 
 ## UML Diagram
 The UML diagram illustrating the MVC relationships is located in the root of the repository as `UML_Diagram.png`. It details the interactions between the controllers and the service layer.
