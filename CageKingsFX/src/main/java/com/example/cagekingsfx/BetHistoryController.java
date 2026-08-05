@@ -16,8 +16,6 @@ import javafx.scene.control.TextArea;
 import javafx.util.Duration;
 
 import javafx.scene.image.ImageView;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 
 /**
@@ -54,21 +52,12 @@ public class BetHistoryController {
         int wins = 0;
         int total = 0;
 
-        try(BufferedReader reader = new BufferedReader(new FileReader(BalanceModel.BETS_CSV_PATH))){
-            String line;
-            boolean firstLine = true;
-            while((line = reader.readLine()) != null){
-                if(firstLine){ firstLine = false; continue; } // skip CSV header
-                String[] parts = line.split(",");
-                if(parts.length < 5) continue;
-                total++;
-                if(parts[4].equalsIgnoreCase("Win")) wins++;
-                history += parts[0] + " vs " + parts[1] + " | Bet on: " + parts[2] + " | $" + parts[3] + " | " + parts[4] + "\n";
-            }
-            if(history.isEmpty()) history = "No bets placed yet.";
-        }catch(IOException e){
-            history = "No bet history found.";
+        for(String[] parts : BalanceModel.readBetsForCurrentUser()){
+            total++;
+            if(parts[4].equalsIgnoreCase("Win")) wins++;
+            history += parts[0] + " vs " + parts[1] + " | Bet on: " + parts[2] + " | $" + parts[3] + " | " + parts[4] + "\n";
         }
+        if(history.isEmpty()) history = "No bets placed yet.";
         outputArea.setText(history);
 
         if(total >= 3){
