@@ -25,11 +25,28 @@ public class FightService {
     private static final String API_KEY = loadApiKey();
     private static final String API_URL = "https://v1.mma.api-sports.io/fights?season=2024";
 
-    /** Where the fights response is cached so repeated runs don't burn API quota. */
-    private static final File CACHE_FILE = new File("fights_cache.json");
+    private static final File DEFAULT_CACHE_FILE = new File("fights_cache.json");
 
-    /** How long a cached response stays good for. */
-    private static final long CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
+    // caching the response keeps repeated runs off the API's free tier quota
+    private static File cacheFile = DEFAULT_CACHE_FILE;
+    static final long CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
+
+    // null restores the default; only tests pass anything else
+    static void setCacheFileForTesting(File file) {
+        cacheFile = (file == null) ? DEFAULT_CACHE_FILE : file;
+    }
+
+    // returns null on a miss, so an unreadable cache just means re-fetch
+    static String readCacheIfFresh() {
+        if (!cacheFile.exists()) return null;
+        if (System.currentTimeMillis() - cacheFile.lastModified() >= CACHE_DURATION_MS) return null;
+
+        try {
+            return new String(Files.readAllBytes(cacheFile.toPath()), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
     /**
      * Loads the API key from config.properties on the classpath, falling back to
@@ -72,13 +89,8 @@ public class FightService {
     //Fetching JSON from the API
     public String getFightsJson() {
 
-        if (CACHE_FILE.exists() && System.currentTimeMillis() - CACHE_FILE.lastModified() < CACHE_DURATION_MS) {
-            try {
-                return new String(Files.readAllBytes(CACHE_FILE.toPath()), StandardCharsets.UTF_8);
-            } catch (Exception e) {
-                e.printStackTrace(); // fall through and re-fetch
-            }
-        }
+        String cached = readCacheIfFresh();
+        if (cached != null) return cached;
 
         StringBuilder result = new StringBuilder();
 
@@ -100,7 +112,7 @@ public class FightService {
             reader.close();
             conn.disconnect();
 
-            Files.write(CACHE_FILE.toPath(), result.toString().getBytes(StandardCharsets.UTF_8));
+            Files.write(cacheFile.toPath(), result.toString().getBytes(StandardCharsets.UTF_8));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -180,7 +192,8 @@ public class FightService {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            // a bad payload is expected from a third party feed, not a crash
+            System.err.println("Could not parse fights response: " + e.getMessage());
         }
 
         return fights;

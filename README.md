@@ -4,8 +4,8 @@ Cage Kings is a virtual MMA betting simulator that enables users to place bets a
 
 ## Contributors
 * **Robert Lloyd** - Developer, Documentation & Architecture
-* **Clemente Fernandez** - Developer, Testing & Version Control
-* **Alden Walker** - Developer
+* **Clemente Fernandez** - Developer, QA & Version Control
+* **Alden Walker** - Developer, Test Automation, Build & Data Integrity
 * **Eddie Garcia** - Developer
 
 ## Application Features
@@ -71,8 +71,21 @@ not consume API quota.
 mvn test
 ```
 
-23 JUnit 5 tests cover the JSON parsing in `FightService` and the per-user CSV
-storage in `BalanceModel`.
+30 JUnit 5 tests cover the JSON parsing and 24 hour response cache in
+`FightService`, and the per-user CSV storage in `BalanceModel`. They run against
+temporary directories and fixture payloads, so no network access or API key is
+needed.
+
+## Security
+
+The api-sports.io key is never read from source. It is loaded from
+`config.properties`, which is gitignored, or from the `CAGEKINGS_API_KEY`
+environment variable.
+
+Earlier revisions hardcoded a key in `FightService.java`. It was removed in
+`8e061ef` and is no longer used, but it remains reachable in git history —
+deleting a secret from the working tree does not unpublish it. Supply your own
+key when running this project.
 
 ## Known Issues & Limitations
 * **API Rate Limits:** The free tier of the MMA API may limit the number of fighter record lookups. Responses are cached for 24 hours to reduce this.
