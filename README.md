@@ -82,10 +82,9 @@ The api-sports.io key is never read from source. It is loaded from
 `config.properties`, which is gitignored, or from the `CAGEKINGS_API_KEY`
 environment variable.
 
-Earlier revisions hardcoded a key in `FightService.java`. It was removed in
-`8e061ef` and is no longer used, but it remains reachable in git history —
-deleting a secret from the working tree does not unpublish it. Supply your own
-key when running this project.
+Earlier revisions hardcoded a key in `FightService.java`. It was moved to config in
+`e430eb6` and scrubbed from this repository's history, and the old key has since
+expired, so it no longer works. Supply your own key when running this project.
 
 ## Known Issues & Limitations
 * **API Rate Limits:** The free tier of the MMA API may limit the number of fighter record lookups. Responses are cached for 24 hours to reduce this.
